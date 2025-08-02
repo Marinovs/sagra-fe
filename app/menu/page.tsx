@@ -1,5 +1,27 @@
 import { NavBar } from "@/components/nav-bar";
 import { MenuContent } from "@/components/menu-content";
+import { Metadata } from "next";
+import {
+  generateOpenGraphMetadata,
+  generateTwitterMetadata,
+  commonMetadata,
+} from "@/lib/metadata";
+
+export const metadata: Metadata = {
+  title: "Menu Completo - Sagra Antichi Sapori | Pro Loco Gioiese",
+  description:
+    "Scopri tutti i piatti tradizionali della 26ª Edizione della Sagra Antichi Sapori. Ordina online: porchetta, pizza fritta, primi piatti e dolci tipici.",
+  ...commonMetadata,
+  openGraph: generateOpenGraphMetadata(
+    "Menu Completo - Sagra Antichi Sapori",
+    "Scopri tutti i piatti tradizionali della 26ª Edizione della Sagra Antichi Sapori. Ordina online: porchetta, pizza fritta, primi piatti e dolci tipici.",
+    "/menu"
+  ),
+  twitter: generateTwitterMetadata(
+    "Menu Completo - Sagra Antichi Sapori",
+    "Scopri tutti i piatti tradizionali della 26ª Edizione della Sagra Antichi Sapori. Ordina online!"
+  ),
+};
 
 export default function MenuPage() {
   return (
