@@ -101,7 +101,7 @@ export function MenuSectionMobile() {
                 onClick={handleBackToCategories}
                 type="button"
               >
-                ← Torna alle categorie
+                ← Torna al Menu
               </button>
             </div>
 
@@ -299,6 +299,15 @@ export function MenuSectionMobile() {
                 ))}
               </div>
             )}
+            <div className="flex w-full justify-center mt-6">
+              <button
+                className="px-5 py-2 rounded-full bg-[#994d51] text-white font-semibold shadow-lg hover:bg-[#7a3a3d] dark:bg-[#b7e8b4] dark:text-[#191011] dark:hover:bg-[#e8f3e7] transition"
+                onClick={handleBackToCategories}
+                type="button"
+              >
+                ← Torna al Menu
+              </button>
+            </div>
           </div>
         </div>
       )}
