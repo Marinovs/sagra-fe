@@ -222,9 +222,9 @@ export function MenuSectionMobile() {
                 {filteredDishes.map((dish) => (
                   <div
                     key={dish.id}
-                    className="flex items-center bg-white rounded-xl border border-[#f1e9ea] px-3 py-2 shadow-sm dark:bg-[#254025] dark:border-[#355a35]"
+                    className="flex items-start bg-white rounded-xl border border-[#f1e9ea] px-3 py-2 shadow-sm dark:bg-[#254025] dark:border-[#355a35]"
                   >
-                    <div className="relative w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden  mr-3">
+                    <div className="relative w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden mr-3">
                       <Image
                         src={`/images/webp/${dish.name}.webp`}
                         alt={dish.name}
@@ -237,15 +237,15 @@ export function MenuSectionMobile() {
                         blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                       />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-[#191011] truncate dark:text-[#e8f3e7]">
-                        {dish.name}
+                    <div className="flex-1 min-w-0 pr-3">
+                      <div className="font-semibold text-[#191011] dark:text-[#e8f3e7] leading-tight break-words">
+                        {dish.name} OOO
                       </div>
-                      <div className="text-xs text-[#8b5b5d] truncate dark:text-[#b7e8b4]">
+                      <div className="text-xs text-[#8b5b5d] dark:text-[#b7e8b4] leading-tight break-words">
                         {dish.description}
                       </div>
                     </div>
-                    <div className="flex flex-col items-end ml-3">
+                    <div className="flex flex-col items-end justify-start flex-shrink-0">
                       <div className="text-sm font-bold text-[#994d51] mb-1 dark:text-[#b7e8b4]">
                         {new Intl.NumberFormat("it-IT", {
                           style: "currency",
@@ -253,7 +253,7 @@ export function MenuSectionMobile() {
                         }).format(dish.price)}
                       </div>
                       <button
-                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
                           dish.available
                             ? "bg-[#e8b4b7] text-[#191011] hover:bg-[#f5e3e4] dark:bg-[#994d51] dark:text-white dark:hover:bg-[#7a3a3d]"
                             : "bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-600 dark:text-gray-400"

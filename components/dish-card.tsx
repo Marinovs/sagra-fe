@@ -71,7 +71,7 @@ export const DishCard = memo(function DishCard({ dish }: DishCardProps) {
       </div>
       {/* Testo e bottone */}
       <div className="flex flex-col items-center text-center gap-1 w-full px-5 py-4">
-        <p className="text-[#191011] text-lg font-extrabold leading-tight mb-1 truncate w-full">
+        <p className="text-[#191011] text-lg font-extrabold leading-tight mb-1 w-full">
           {dish.name}
         </p>
         <Button
