@@ -9,7 +9,16 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Dish, DishCategories, DishCategory } from "@/lib/types";
-import { Plus, Edit, Trash2, Search } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Search,
+  Check,
+  X,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { DishForm } from "@/components/dish-form";
@@ -34,6 +43,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import axios from "axios";
 
 export default function AdminDishesPage() {
@@ -47,6 +57,10 @@ export default function AdminDishesPage() {
   const { toast } = useToast();
   const [page, setPage] = useState(1);
   const itemsPerPage = 8;
+
+  // Bulk selection state
+  const [selectedDishes, setSelectedDishes] = useState<Set<string>>(new Set());
+  const [isSelectMode, setIsSelectMode] = useState(false);
 
   // Move getDishes outside useEffect
   const getDishes = async () => {
@@ -195,13 +209,105 @@ export default function AdminDishesPage() {
     });
   };
 
+  // Bulk operations
+  const handleSelectAll = () => {
+    if (selectedDishes.size === paginatedDishes.length) {
+      setSelectedDishes(new Set());
+    } else {
+      setSelectedDishes(new Set(paginatedDishes.map((dish) => dish.id)));
+    }
+  };
+
+  const handleSelectDish = (dishId: string) => {
+    const newSelected = new Set(selectedDishes);
+    if (newSelected.has(dishId)) {
+      newSelected.delete(dishId);
+    } else {
+      newSelected.add(dishId);
+    }
+    setSelectedDishes(newSelected);
+  };
+
+  const handleBulkToggleAvailability = async (available: boolean) => {
+    try {
+      const updates = Array.from(selectedDishes).map(async (dishId) => {
+        return axios.put(
+          `${process.env.NEXT_PUBLIC_BE_URI}/dishes/${dishId}`,
+          { available },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+      });
+
+      await Promise.all(updates);
+
+      setDishes(
+        dishes.map((dish) =>
+          selectedDishes.has(dish.id) ? { ...dish, available } : dish
+        )
+      );
+
+      toast({
+        title: "Disponibilità aggiornata",
+        description: `${selectedDishes.size} piatti sono stati ${
+          available ? "abilitati" : "disabilitati"
+        }.`,
+      });
+
+      setSelectedDishes(new Set());
+    } catch (error) {
+      toast({
+        title: "Errore",
+        description: "Non è stato possibile aggiornare alcuni piatti.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      const deletes = Array.from(selectedDishes).map(async (dishId) => {
+        return axios.delete(
+          `${process.env.NEXT_PUBLIC_BE_URI}/dishes/${dishId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+      });
+
+      await Promise.all(deletes);
+
+      setDishes(dishes.filter((dish) => !selectedDishes.has(dish.id)));
+
+      toast({
+        title: "Piatti eliminati",
+        description: `${selectedDishes.size} piatti sono stati eliminati con successo.`,
+      });
+
+      setSelectedDishes(new Set());
+    } catch (error) {
+      toast({
+        title: "Errore",
+        description: "Non è stato possibile eliminare alcuni piatti.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Filter dishes based on search query and category
   const filteredDishes = dishes.filter((dish) => {
     const matchesSearch =
       dish.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       dish.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesSearch;
+    const matchesCategory = activeTab === "all" || dish.category === activeTab;
+
+    return matchesSearch && matchesCategory;
   });
 
   // Paginazione - se c'è una ricerca attiva, mostra tutti i risultati
@@ -230,20 +336,37 @@ export default function AdminDishesPage() {
           </p>
         </div>
 
-        <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setAddDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nuovo Piatto
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogTitle className="text-lg font-semibold leading-none tracking-tight mb-4">
-              Aggiungi Nuovo Piatto
-            </DialogTitle>
-            <DishForm onSave={handleSaveDish} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setIsSelectMode(!isSelectMode);
+              setSelectedDishes(new Set());
+            }}
+          >
+            {isSelectMode ? (
+              <X className="h-4 w-4 mr-2" />
+            ) : (
+              <Check className="h-4 w-4 mr-2" />
+            )}
+            {isSelectMode ? "Annulla Selezione" : "Seleziona Multipli"}
+          </Button>
+
+          <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setAddDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Nuovo Piatto
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogTitle className="text-lg font-semibold leading-none tracking-tight mb-4">
+                Aggiungi Nuovo Piatto
+              </DialogTitle>
+              <DishForm onSave={handleSaveDish} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
@@ -295,10 +418,105 @@ export default function AdminDishesPage() {
         </Tabs>
       </div>
 
+      {/* Bulk actions bar */}
+      {isSelectMode && (
+        <div className="bg-muted/50 rounded-lg p-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div className="flex items-center gap-4">
+              <Button variant="outline" size="sm" onClick={handleSelectAll}>
+                {selectedDishes.size === paginatedDishes.length
+                  ? "Deseleziona Tutto"
+                  : "Seleziona Tutto"}
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                {selectedDishes.size} piatti selezionati
+              </span>
+            </div>
+
+            {selectedDishes.size > 0 && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBulkToggleAvailability(true)}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Abilita Selezionati
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBulkToggleAvailability(false)}
+                >
+                  <EyeOff className="h-4 w-4 mr-2" />
+                  Disabilita Selezionati
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Elimina Selezionati
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Conferma eliminazione multipla
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Sei sicuro di voler eliminare {selectedDishes.size}{" "}
+                        piatti selezionati? Questa azione non può essere
+                        annullata.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Annulla</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleBulkDelete}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Elimina Tutto
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {paginatedDishes.map((dish) => (
-          <Card key={dish.id} className={dish.available ? "" : "opacity-60"}>
-            <div className="flex flex-col w-full justify-center items-center">
+          <Card
+            key={dish.id}
+            className={`${dish.available ? "" : "opacity-60"} ${
+              isSelectMode
+                ? "cursor-pointer hover:shadow-md transition-shadow"
+                : ""
+            } ${selectedDishes.has(dish.id) ? "ring-2 ring-primary" : ""}`}
+          >
+            {isSelectMode && (
+              <div className="absolute top-2 left-2 z-10">
+                <div
+                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                    selectedDishes.has(dish.id)
+                      ? "bg-primary border-primary text-primary-foreground"
+                      : "bg-background border-muted-foreground"
+                  }`}
+                  onClick={() => handleSelectDish(dish.id)}
+                >
+                  {selectedDishes.has(dish.id) && <Check className="w-4 h-4" />}
+                </div>
+              </div>
+            )}
+
+            <div
+              className="flex flex-col w-full justify-center items-center"
+              onClick={
+                isSelectMode ? () => handleSelectDish(dish.id) : undefined
+              }
+            >
               <div className="flex w-full h-fit justify-end p-2">
                 <div className="bg-primary text-primary-foreground text-sm font-medium py-1 px-2 rounded">
                   {formatCurrency(dish.price)}
@@ -339,64 +557,66 @@ export default function AdminDishesPage() {
               <p className="text-sm">{dish.description}</p>
             </CardContent>
 
-            <CardFooter className="p-4 pt-0 flex justify-between">
-              <Dialog
-                open={editDialogOpen && editingDish?.id === dish.id}
-                onOpenChange={(open) => {
-                  setEditDialogOpen(open);
-                  if (!open) setEditingDish(null);
-                }}
-              >
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setEditingDish(dish);
-                      setEditDialogOpen(true);
-                    }}
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Modifica
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px]">
-                  <DialogTitle className="text-lg font-semibold leading-none tracking-tight mb-4">
-                    Modifica Piatto
-                  </DialogTitle>
-                  {editingDish && editingDish.id === dish.id && (
-                    <DishForm dish={editingDish} onSave={handleSaveDish} />
-                  )}
-                </DialogContent>
-              </Dialog>
-
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="sm">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Elimina
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Sei sicuro di voler eliminare {dish.name}? Questa azione
-                      non può essere annullata.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Annulla</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => handleDeleteDish(dish.id)}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            {!isSelectMode && (
+              <CardFooter className="p-4 pt-0 flex justify-between">
+                <Dialog
+                  open={editDialogOpen && editingDish?.id === dish.id}
+                  onOpenChange={(open) => {
+                    setEditDialogOpen(open);
+                    if (!open) setEditingDish(null);
+                  }}
+                >
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setEditingDish(dish);
+                        setEditDialogOpen(true);
+                      }}
                     >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Modifica
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[600px]">
+                    <DialogTitle className="text-lg font-semibold leading-none tracking-tight mb-4">
+                      Modifica Piatto
+                    </DialogTitle>
+                    {editingDish && editingDish.id === dish.id && (
+                      <DishForm dish={editingDish} onSave={handleSaveDish} />
+                    )}
+                  </DialogContent>
+                </Dialog>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm">
+                      <Trash2 className="h-4 w-4 mr-2" />
                       Elimina
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </CardFooter>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Sei sicuro di voler eliminare {dish.name}? Questa azione
+                        non può essere annullata.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Annulla</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => handleDeleteDish(dish.id)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Elimina
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </CardFooter>
+            )}
           </Card>
         ))}
 
