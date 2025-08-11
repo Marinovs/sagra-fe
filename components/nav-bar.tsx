@@ -43,13 +43,13 @@ export function NavBar() {
     >
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center">
-            {/* <Image
-              src="https://i.ibb.co/JR4Gq5qy/365887081-6387153461352730-7481390912065758104-n.png"
+          <div className="flex items-center gap-2">
+            <Image
+              src={"/images/logo.png"}
               alt="Pro Loco Gioiese"
-              width={64}
-              height={64}
-            /> */}
+              width={32}
+              height={32}
+            />
             <Link href="/" className="flex items-center space-x-2">
               <span className="font-playfair font-bold text-xl">
                 Pro Loco Gioiese
