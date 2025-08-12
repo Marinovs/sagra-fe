@@ -6,8 +6,7 @@ export function DishOfTheDay() {
   const dish = {
     name: "Piatto del Giorno",
     image: "/images/special.jpg",
-    highlight:
-      "Pizza fritta con stracciata di bufala, mortadella e granella di pistacchio",
+    highlight: "Pizza fritta con caciocavallo e crema di tartufo",
   };
 
   return (

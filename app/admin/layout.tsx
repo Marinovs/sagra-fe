@@ -8,6 +8,7 @@ import {
   ClipboardList,
   UtensilsCrossed,
   BarChart3,
+  PieChart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -55,10 +56,12 @@ export default function AdminLayout({
     { href: "/admin", label: "Dashboard", icon: BarChart3 },
     { href: "/admin/dishes", label: "Gestione Piatti", icon: UtensilsCrossed },
     { href: "/admin/orders", label: "Ordini", icon: ClipboardList },
+    { href: "/admin/reports", label: "Report Giornalieri", icon: PieChart },
   ];
 
   const handleLogout = () => {
     localStorage.removeItem("adminAuthenticated");
+    localStorage.removeItem("token");
     setIsAuthenticated(false);
     router.push("/admin/login");
   };

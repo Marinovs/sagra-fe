@@ -108,9 +108,6 @@ export default function AdminLoginPage() {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Usa la password &quot;admin123&quot; per accedere
-              </p>
             </div>
           </CardContent>
           <CardFooter>
