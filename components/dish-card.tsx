@@ -6,6 +6,7 @@ import { Dish } from "@/lib/types";
 import { useCart } from "@/lib/cart-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Calendar } from "lucide-react";
 
 interface DishCardProps {
   dish: Dish;
@@ -43,6 +44,39 @@ export const DishCard = memo(function DishCard({ dish }: DishCardProps) {
   // Optionally, you can map dish.category to a display string if needed
   const category = dish.category || "";
 
+  // Compute closest available date label if availableDates are provided
+  const closestAvailable: { label: string; relative: boolean } | null = (() => {
+    if (!dish.availableDates || dish.availableDates.length === 0) return null;
+    const dates = [...dish.availableDates].sort();
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    const tyyyy = tomorrow.getFullYear();
+    const tmm = String(tomorrow.getMonth() + 1).padStart(2, "0");
+    const tdd = String(tomorrow.getDate()).padStart(2, "0");
+    const tomorrowStr = `${tyyyy}-${tmm}-${tdd}`;
+
+    const upcoming = dates.filter((d) => d >= todayStr);
+    const chosen = upcoming.length > 0 ? upcoming[0] : dates[dates.length - 1];
+
+  if (chosen === todayStr) return { label: "oggi", relative: true };
+  if (chosen === tomorrowStr) return { label: "domani", relative: true };
+
+    try {
+      const label = new Date(chosen).toLocaleDateString("it-IT", {
+        day: "2-digit",
+        month: "2-digit",
+      });
+  return { label, relative: false };
+    } catch {
+  return { label: "-", relative: false };
+    }
+  })();
+
   return (
     <div
       className="flex flex-col bg-white rounded-2xl shadow-md max-w-xs mx-auto overflow-hidden transition-all duration-200 hover:shadow-xl border border-[#f3e6e7]"
@@ -74,6 +108,67 @@ export const DishCard = memo(function DishCard({ dish }: DishCardProps) {
         <p className="text-[#191011] text-lg font-extrabold leading-tight mb-1 w-full">
           {dish.name}
         </p>
+        {(dish.availableDates?.length || dish.availableOn) && (
+          <div className="flex items-center gap-2 w-full mb-3 bg-primary/5 rounded-lg px-3 py-2">
+            <Calendar className="h-6 w-6 text-primary" />
+            <div className="flex flex-wrap gap-2">
+              {(() => {
+                const dates =
+                  dish.availableDates && dish.availableDates.length > 0
+                    ? [...dish.availableDates].sort()
+                    : dish.availableOn
+                    ? [dish.availableOn]
+                    : [];
+                if (!dates.length) return null;
+
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, "0");
+                const dd = String(today.getDate()).padStart(2, "0");
+                const todayStr = `${yyyy}-${mm}-${dd}`;
+
+                const visible = dates.slice(0, 3);
+                const hidden = dates.slice(3);
+
+                const fmt = (d: string) =>
+                  new Date(d).toLocaleDateString("it-IT", {
+                    day: "2-digit",
+                    month: "2-digit",
+                  });
+
+                return (
+                  <>
+                    {visible.map((d) => {
+                      const isToday = d === todayStr;
+                      return (
+                        <span
+                          key={d}
+                          className={cn(
+                            "px-3 py-1.5 rounded-full text-base font-semibold border",
+                            isToday
+                              ? "bg-primary text-primary-foreground border-primary/70 shadow-sm"
+                              : "bg-primary/10 text-primary border-primary/30"
+                          )}
+                          title={isToday ? "Oggi" : undefined}
+                        >
+                          {isToday ? "Oggi" : fmt(d)}
+                        </span>
+                      );
+                    })}
+                    {hidden.length > 0 && (
+                      <span
+                        className="px-3 py-1.5 rounded-full text-base font-semibold bg-primary/10 text-primary border border-primary/30"
+                        title={hidden.map(fmt).join(", ")}
+                      >
+                        +{hidden.length}
+                      </span>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        )}
         <Button
           onClick={handleAddToCart}
           disabled={!dish.available}
@@ -85,7 +180,11 @@ export const DishCard = memo(function DishCard({ dish }: DishCardProps) {
           )}
           variant="ghost"
         >
-          {dish.available ? "Aggiungi al Carrello" : "Non Disponibile"}
+          {dish.availableDates && dish.availableDates.length > 0
+            ? `Disponibile ${closestAvailable?.relative ? "" : "il "}${closestAvailable?.label ?? "-"}`
+            : dish.available
+            ? "Aggiungi al Carrello"
+            : "Non Disponibile"}
         </Button>
       </div>
     </div>

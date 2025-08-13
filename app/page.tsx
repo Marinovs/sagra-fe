@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { DishOfTheDay } from "@/components/dish-of-the-day";
 import { FooterLoading, MobileFooterLoading } from "@/components/loading";
+import { MenuPdfButton } from "@/components/menu-pdf-button";
 
 // Dynamic imports for footer components only
 const Footer = dynamic(
@@ -56,14 +57,19 @@ export default function Home() {
           <div className="mb-24">
             <DishOfTheDay />
 
-            <Link href="/menu">
-              <Button
-                size="lg"
-                className="text-lg px-8 py-4 font-semibold mt-4 mb-24"
-              >
-                Vai al Menu
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
+              <Link href="/menu">
+                <Button
+                  size="lg"
+                  className="text-lg px-8 py-4 font-semibold mt-4 mb-4 sm:mb-0"
+                >
+                  Vai al Menu
+                </Button>
+              </Link>
+              <div className="mb-24 sm:mb-0">
+                <MenuPdfButton />
+              </div>
+            </div>
           </div>
         </section>
       </div>

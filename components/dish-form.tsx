@@ -31,6 +31,9 @@ export function DishForm({ dish, onSave }: DishFormProps) {
     category: dish?.category!,
     image: dish?.image || "",
     available: dish?.available ?? true,
+    availableOn: dish?.availableOn ?? "",
+    availableDates:
+      dish?.availableDates ?? (dish?.availableOn ? [dish.availableOn] : []),
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -49,6 +52,11 @@ export function DishForm({ dish, onSave }: DishFormProps) {
     if (!formData.image.trim()) {
       newErrors.image = "L'URL dell'immagine è obbligatorio";
     }
+    // Validate dates list (if provided)
+    if (formData.availableDates && formData.availableDates.length > 0) {
+      const invalid = formData.availableDates.find((d) => isNaN(Date.parse(d)));
+      if (invalid) newErrors.availableDates = `Data non valida: ${invalid}`;
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -58,7 +66,9 @@ export function DishForm({ dish, onSave }: DishFormProps) {
     e.preventDefault();
 
     if (validateForm()) {
-      onSave(formData);
+      // Keep availableOn aligned to first available date for backward compatibility
+      const firstDate = formData.availableDates?.[0] || "";
+      onSave({ ...formData, availableOn: firstDate });
     }
   };
 
@@ -79,6 +89,37 @@ export function DishForm({ dish, onSave }: DishFormProps) {
         [name]: "",
       });
     }
+  };
+
+  // Local state for adding new dates
+  const [newDate, setNewDate] = useState<string>("");
+
+  const addDate = () => {
+    if (!newDate) return;
+    if (isNaN(Date.parse(newDate))) {
+      setErrors((prev) => ({ ...prev, availableDates: "Data non valida" }));
+      return;
+    }
+    if (formData.availableDates?.includes(newDate)) {
+      setNewDate("");
+      return;
+    }
+    const updated = [...(formData.availableDates || []), newDate].sort();
+    setFormData((prev) => ({
+      ...prev,
+      availableDates: updated,
+      availableOn: updated[0] || "",
+    }));
+    setNewDate("");
+  };
+
+  const removeDate = (date: string) => {
+    const updated = (formData.availableDates || []).filter((d) => d !== date);
+    setFormData((prev) => ({
+      ...prev,
+      availableDates: updated,
+      availableOn: updated[0] || "",
+    }));
   };
 
   return (
@@ -166,6 +207,46 @@ export function DishForm({ dish, onSave }: DishFormProps) {
             <p className="text-destructive text-sm">{errors.image}</p>
           )}
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Giorni disponibili</Label>
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-2">
+          <Input
+            type="date"
+            value={newDate}
+            onChange={(e) => setNewDate(e.target.value)}
+          />
+          <Button type="button" onClick={addDate} variant="outline">
+            Aggiungi Giorno
+          </Button>
+        </div>
+        {errors.availableDates && (
+          <p className="text-destructive text-sm">{errors.availableDates}</p>
+        )}
+        {formData.availableDates && formData.availableDates.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {formData.availableDates.map((date) => (
+              <span
+                key={date}
+                className="inline-flex items-center gap-2 bg-muted text-foreground px-2 py-1 rounded-full text-xs"
+              >
+                {new Date(date).toLocaleDateString("it-IT", {
+                  day: "2-digit",
+                  month: "2-digit",
+                })}
+                <button
+                  type="button"
+                  onClick={() => removeDate(date)}
+                  className="rounded-full bg-background/60 hover:bg-background px-1 leading-none"
+                  aria-label={`Rimuovi ${date}`}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex items-center space-x-2">

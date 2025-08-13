@@ -6,6 +6,10 @@ export interface Dish {
   category: DishCategory;
   image: string;
   available: boolean;
+  // DEPRECATO: singola data (YYYY-MM-DD) in cui il piatto è disponibile
+  availableOn?: string | null;
+  // Nuovo: elenco di date (YYYY-MM-DD) in cui il piatto è disponibile
+  availableDates?: string[];
 }
 
 export const DishCategories = {
