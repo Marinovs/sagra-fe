@@ -4,9 +4,9 @@ import { useState } from "react";
 export function DishOfTheDay() {
   const [show, setShow] = useState(false);
   const dish = {
-    name: "Piatto del Giorno",
+    name: "Pizza Fritta 'Ra Jurnat'",
     image: "/images/special.jpg",
-    highlight: "Pizza fritta con caciocavallo e crema di tartufo",
+    highlight: "Pizza fritta con crudo, rucola e scaglie di formaggio",
   };
 
   return (
