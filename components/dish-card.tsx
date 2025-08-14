@@ -63,17 +63,17 @@ export const DishCard = memo(function DishCard({ dish }: DishCardProps) {
     const upcoming = dates.filter((d) => d >= todayStr);
     const chosen = upcoming.length > 0 ? upcoming[0] : dates[dates.length - 1];
 
-  if (chosen === todayStr) return { label: "oggi", relative: true };
-  if (chosen === tomorrowStr) return { label: "domani", relative: true };
+    if (chosen === todayStr) return { label: "oggi", relative: true };
+    if (chosen === tomorrowStr) return { label: "domani", relative: true };
 
     try {
       const label = new Date(chosen).toLocaleDateString("it-IT", {
         day: "2-digit",
         month: "2-digit",
       });
-  return { label, relative: false };
+      return { label, relative: false };
     } catch {
-  return { label: "-", relative: false };
+      return { label: "-", relative: false };
     }
   })();
 
@@ -181,7 +181,9 @@ export const DishCard = memo(function DishCard({ dish }: DishCardProps) {
           variant="ghost"
         >
           {dish.availableDates && dish.availableDates.length > 0
-            ? `Disponibile ${closestAvailable?.relative ? "" : "il "}${closestAvailable?.label ?? "-"}`
+            ? `Disponibile ${closestAvailable?.relative ? "" : "il "}${
+                closestAvailable?.label ?? "-"
+              }`
             : dish.available
             ? "Aggiungi al Carrello"
             : "Non Disponibile"}

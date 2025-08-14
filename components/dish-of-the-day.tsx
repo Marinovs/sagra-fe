@@ -6,7 +6,7 @@ export function DishOfTheDay() {
   const dish = {
     name: "Pizza Fritta 'Ra Jurnat'",
     image: "/images/special.jpg",
-    highlight: "Pizza fritta con crudo, rucola e scaglie di formaggio",
+    highlight: "Pizza fritta con fichi freschi gioiesi",
   };
 
   return (
