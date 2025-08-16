@@ -5,8 +5,8 @@ export function DishOfTheDay() {
   const [show, setShow] = useState(false);
   const dish = {
     name: "Pizza Fritta 'Ra Jurnat'",
-    image: "/images/special.jpg",
-    highlight: "Pizza fritta con fichi freschi gioiesi",
+    image: "/images/_special.jpg",
+    highlight: "Pizza fritta con mortadella, stracciata di bufala e granella di pistacchio",
   };
 
   return (
