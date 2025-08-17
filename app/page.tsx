@@ -1,90 +1,61 @@
 "use client";
-
-import { NavBar } from "@/components/nav-bar";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import React from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import { Suspense } from "react";
-import { DishOfTheDay } from "@/components/dish-of-the-day";
-import { FooterLoading, MobileFooterLoading } from "@/components/loading";
-import { MenuPdfButton } from "@/components/menu-pdf-button";
 
-// Dynamic imports for footer components only
-const Footer = dynamic(
-  () => import("@/components/footer").then((mod) => ({ default: mod.Footer })),
-  {
-    loading: () => <FooterLoading />,
-  }
-);
-
-const MobileFooter = dynamic(
-  () =>
-    import("@/components/mobile-footer").then((mod) => ({
-      default: mod.MobileFooter,
-    })),
-  {
-    loading: () => <MobileFooterLoading />,
-  }
-);
-
-export default function Home() {
+export default function FineSagraPage() {
   return (
-    <main className="min-h-screen bg-background">
-      <NavBar />
-      <div className="container mx-auto px-4 py-8">
-        {/* Piatto del giorno sempre visibile */}
-        <section className="flex flex-col items-center justify-center text-center space-y-8 min-h-[60vh]">
-          <div className="space-y-4">
-            <Image
-              src="/images/webp/banner.webp"
-              alt="XXVI Edizione Sagra Antichi Sapori - Pro Loco Gioiese"
-              width={800}
-              height={800}
-              className="mx-auto max-w-full h-auto"
-              priority // Load this image with high priority since it's above the fold
-              placeholder="blur"
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-            />
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-primary">
-              Benvenuti alla Sagra degli Antichi Sapori
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Scopri i nostri piatti tradizionali, ordina online e ritira lo
-              scontrino alla cassa.
-            </p>
+    <div className="relative w-screen h-screen flex items-center justify-center bg-black">
+      {/* Video full screen */}
+      <video
+        className="absolute inset-0 w-full h-full object-cover"
+        src="/video.mp4"
+        autoPlay
+        loop
+        muted
+        poster="/images/logo.png"
+        title="Sagra Video"
+      />
+      {/* Overlay scura per migliorare la leggibilità */}
+      <div className="absolute inset-0 bg-black bg-opacity-60 z-0" />
+      {/* Overlay per testo in basso con animazione fade-in */}
+      <div className="relative left-0 w-full z-10 flex flex-col items-center pb-10 px-4">
+        <div className="bg-black/50 rounded-xl w-full max-w-2xl text-white text-center p-6 animate-fade-in">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
+            Grazie di cuore a tutti!
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 drop-shadow-lg">
+            La sagra è finita, grazie per aver partecipato e aver reso questa
+            edizione speciale.
+          </p>
+          <div className="text-lg md:text-xl opacity-80 mb-6">
+            Ci vediamo l&apos;anno prossimo!
           </div>
-          <div className="mb-24">
-            <DishOfTheDay />
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
-              <Link href="/menu">
-                <Button
-                  size="lg"
-                  className="text-lg px-8 py-4 font-semibold mt-4 mb-4 sm:mb-0"
-                >
-                  Vai al Menu
-                </Button>
-              </Link>
-              <div className="mb-24 sm:mb-0">
-                <MenuPdfButton />
-              </div>
-            </div>
-          </div>
-        </section>
+          <Link
+            className="underline text-blue-600"
+            href="https://www.prolocogioiese.com"
+            target="__blank"
+          >
+            <p>Pro Loco Gioiese</p>
+          </Link>
+        </div>
       </div>
-
-      {/* Footer */}
-      <div className="block sm:hidden">
-        <Suspense fallback={<MobileFooterLoading />}>
-          <MobileFooter />
-        </Suspense>
-      </div>
-      <div className="hidden sm:block">
-        <Suspense fallback={<FooterLoading />}>
-          <Footer />
-        </Suspense>
-      </div>
-    </main>
+      {/* Animazione fade-in */}
+      <style jsx>{`
+        .animate-fade-in {
+          animation: fadeIn 1.2s ease-in;
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </div>
   );
 }

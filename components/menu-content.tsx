@@ -1,13 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import {
   MenuLoading,
   FooterLoading,
   MobileFooterLoading,
 } from "@/components/loading";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { useRouter } from "next/navigation";
 
 // Dynamic imports for performance optimization
 const MenuSection = dynamic(
@@ -50,6 +51,11 @@ const MobileFooter = dynamic(
 );
 
 export function MenuContent() {
+  const router = useRouter();
+  useEffect(() => {
+    router.push("/");
+  }, []);
+
   return (
     <>
       {/* Show mobile or desktop menu section based on screen size */}
