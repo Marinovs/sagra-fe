@@ -14,6 +14,8 @@ export default function FineSagraPage() {
         muted
         poster="/images/logo.png"
         title="Sagra Video"
+        playsInline
+        controls
       />
       {/* Overlay scura per migliorare la leggibilità */}
       <div className="absolute inset-0 bg-black bg-opacity-60 z-0" />
